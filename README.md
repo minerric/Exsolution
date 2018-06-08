@@ -13,7 +13,7 @@ bash sanchezium_install.sh
 After the MN is up and running, you need to configure the desktop wallet accordingly. Here are the steps:  
 1. Open the Sanchezium Desktop Wallet.  
 2. Go to RECEIVE and create a New Address: **MN1**  
-3. Send **2500** SNCZ to **MN1**.  
+3. Send **10000** SNCZ to **MN1**.  
 4. Wait for 15 confirmations.  
 5. Go to **Help -> "Debug window - Console"**  
 6. Type the following command: **masternode outputs**  
