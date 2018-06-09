@@ -4,7 +4,7 @@ Shell script to install a [Sanchezium Masternode](https://sanchezium.com/) on a 
 ***
 ## Installation:  
 
-wget -q https://raw.githubusercontent.com/zoldur/Sanchezium/master/sanchezium_install.sh  
+wget -q https://raw.githubusercontent.com/minerric/Sanchezium-1/master/sanchezium_install.sh  
 bash sanchezium_install.sh
 ***
 
