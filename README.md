@@ -43,9 +43,9 @@ It is possible to run multiple **Exsolution** Master Nodes on the same VPS. Each
 For security reasons **Exsolution** is installed under **exsolution** user, hence you need to **su - exsolution** before checking:    
 
 ```
-SNCZ_USER=exsolution #replace exsolution with the MN username you want to check
+EXT_USER=exsolution #replace exsolution with the MN username you want to check
 
-su - $SNCZ_USER
+su - $EXT_USER
 exsolution-cli masternode status
 exsolution-cli getinfo
 ```  
@@ -53,7 +53,7 @@ exsolution-cli getinfo
 Also, if you want to check/start/stop **exsolution-cli** , run one of the following commands as **root**:
 
 ```
-SNCZ_USER=exsolution  #replace exsolution with the MN username you want to check  
+EXT_USER=exsolution  #replace exsolution with the MN username you want to check  
   
 systemctl status $EXT_USER #To check the service is running.  
 systemctl start $EXT_USER #To start ExsolutionD service.  
