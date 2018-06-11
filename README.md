@@ -4,7 +4,7 @@ Shell script to install a [Exsolution Masternode](https://www.exsolution.io/) on
 ***
 ## Installation:  
 
-wget -q https://raw.githubusercontent.com/minerric/Sanchezium-1/master/sanchezium_install.sh  
+wget -q https://raw.githubusercontent.com/minerric/Exsolution/master/exsolution_install.sh  
 bash exsolution_install.sh
 ***
 
