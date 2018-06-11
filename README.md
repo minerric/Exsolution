@@ -1,19 +1,19 @@
-# Sanchezium
-Shell script to install a [Sanchezium Masternode](https://sanchezium.com/) on a Linux server running Ubuntu 16.04. Use it on your own risk.  
+# Exsolution
+Shell script to install a [Exsolution Masternode](https://www.exsolution.io/) on a Linux server running Ubuntu 16.04. Use it on your own risk.  
 
 ***
 ## Installation:  
 
 wget -q https://raw.githubusercontent.com/minerric/Sanchezium-1/master/sanchezium_install.sh  
-bash sanchezium_install.sh
+bash exsolution_install.sh
 ***
 
 ## Desktop wallet setup  
 
 After the MN is up and running, you need to configure the desktop wallet accordingly. Here are the steps:  
-1. Open the Sanchezium Desktop Wallet.  
+1. Open the Exsolution Desktop Wallet.  
 2. Go to RECEIVE and create a New Address: **MN1**  
-3. Send **10000** SNCZ to **MN1**.  
+3. Send **10000** EXT to **MN1**.  
 4. Wait for 15 confirmations.  
 5. Go to **Help -> "Debug window - Console"**  
 6. Type the following command: **masternode outputs**  
@@ -33,32 +33,32 @@ After the MN is up and running, you need to configure the desktop wallet accordi
 
 ## Multiple MN on one VPS:
 
-It is possible to run multiple **Sanchezium** Master Nodes on the same VPS. Each MN will run under a different user you will choose during installation.  
+It is possible to run multiple **Exsolution** Master Nodes on the same VPS. Each MN will run under a different user you will choose during installation.  
 
 ***
 
 
 ## Usage:  
 
-For security reasons **Sanchezium** is installed under **sanchezium** user, hence you need to **su - sanchezium** before checking:    
+For security reasons **Exsolution** is installed under **exsolution** user, hence you need to **su - exsolution** before checking:    
 
 ```
-SNCZ_USER=sanchezium #replace sanchezium with the MN username you want to check
+SNCZ_USER=exsolution #replace exsolution with the MN username you want to check
 
 su - $SNCZ_USER
-Sancheziumd masternode status
-Sancheziumd getinfo
+exsolution-cli masternode status
+exsolution-cli getinfo
 ```  
 
-Also, if you want to check/start/stop **Sancheziumd** , run one of the following commands as **root**:
+Also, if you want to check/start/stop **exsolution-cli** , run one of the following commands as **root**:
 
 ```
-SNCZ_USER=sanchezium  #replace sanchezium with the MN username you want to check  
+SNCZ_USER=exsolution  #replace exsolution with the MN username you want to check  
   
-systemctl status $SNCZ_USER #To check the service is running.  
-systemctl start $SNCZ_USER #To start SancheziumD service.  
-systemctl stop $ASNCZ_USER #To stop SancheziumD service.  
-systemctl is-enabled $SNCZ_USER #To check whetether SancheziumD service is enabled on boot or not.  
+systemctl status $EXT_USER #To check the service is running.  
+systemctl start $EXT_USER #To start ExsolutionD service.  
+systemctl stop $EXT_USER #To stop ExsolutionD service.  
+systemctl is-enabled $EXT_USER #To check whetether exsolution-cli service is enabled on boot or not.  
 ```  
 
 ***
@@ -66,7 +66,5 @@ systemctl is-enabled $SNCZ_USER #To check whetether SancheziumD service is enabl
   
 Any donation is highly appreciated  
 
-**SNCZ**: SQhM86PsFw4dxssXYFWdDSMQ8MuynRUx2f  
-**BTC**: 1BzeQ12m4zYaQKqysGNVbQv1taN7qgS8gY  
-**ETH**: 0x39d10fe57611c564abc255ffd7e984dc97e9bd6d  
-**LTC**: LXrWbfeejNQRmRvtzB6Te8yns93Tu3evGf  
+**EXT**: SQhM86PsFw4dxssXYFWdDSMQ8MuynRUx2f  
+**BTC**: 1BzeQ12m4zYaQKqysGNVbQv1taN7qgS8gY 
