@@ -108,7 +108,7 @@ function compile_exsolution() {
 
   cd $TMP_FOLDER
   git clone $EXSOLUTION_REPO
-  cd ext-wallet
+  cd ext-wallet/
   ./autogen.sh
   ./configure
   make
