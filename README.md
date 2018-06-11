@@ -66,5 +66,5 @@ systemctl is-enabled $EXT_USER #To check whetether exsolution-cli service is ena
   
 Any donation is highly appreciated  
 
-**EXT**: SQhM86PsFw4dxssXYFWdDSMQ8MuynRUx2f  
-**BTC**: 1BzeQ12m4zYaQKqysGNVbQv1taN7qgS8gY 
+**EXT**: EWfyVRFTcDqiBu65eK7wCXucgKDSiVKrYg  
+**BTC**: 351WSSrEjsbvUUb3QMiwyTPa947FAei9Yy 
