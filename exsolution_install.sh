@@ -1,11 +1,11 @@
 #!/bin/bash
 
 TMP_FOLDER=$(mktemp -d)
-CONFIG_FILE="Sanchezium.conf"
-SANCHEZIUM_DAEMON="/usr/local/bin/Sancheziumd"
-SANCHEZIUM_REPO="https://github.com/sanchezium/sanchezium"
-DEFAULTSANCHEZIUMPORT=11463
-DEFAULTSANCHEZIUMUSER="sanchezium"
+CONFIG_FILE="exsolution.conf"
+EXSOLUTION_DAEMON="/usr/local/bin/exsolution-cli"
+EXSOLUTION_REPO="https://github.com/exsolution/ext-wallet.git"
+DEFAULTEXSOLUTIONPORT=21636
+DEFAULTEXSOLUTIONUSER="exsolution"
 NODEIP=$(curl -s4 icanhazip.com)
 
 
@@ -34,19 +34,19 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
-if [ -n "$(pidof $SANCHEZIUM_DAEMON)" ] || [ -e "$SANCHEZIUM_DAEMOM" ] ; then
+if [ -n "$(pidof $EXSOLUTION_DAEMON)" ] || [ -e "$EXSOLUTION_DAEMOM" ] ; then
   echo -e "${GREEN}\c"
-  read -e -p "Sanchezium is already installed. Do you want to add another MN? [Y/N]" NEW_SANCHEZIUM
+  read -e -p "Exsolution is already installed. Do you want to add another MN? [Y/N]" NEW_EXSOLUTION
   echo -e "{NC}"
   clear
 else
-  NEW_SANCHEZIUM="new"
+  NEW_EXSOLUTION="new"
 fi
 }
 
 function prepare_system() {
 
-echo -e "Prepare the system to install Sanchezium master node."
+echo -e "Prepare the system to install Exsolution master node."
 apt-get update >/dev/null 2>&1
 DEBIAN_FRONTEND=noninteractive apt-get update > /dev/null 2>&1
 DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y -qq upgrade >/dev/null 2>&1
@@ -91,7 +91,7 @@ fi
 clear
 }
 
-function compile_sanchezium() {
+function compile_exsolution() {
   echo -e "Clone git repo and compile it. This may take some time. Press a key to continue."
   read -n 1 -s -r -p ""
 
@@ -107,11 +107,14 @@ function compile_sanchezium() {
   clear 
 
   cd $TMP_FOLDER
-  git clone $SANCHEZIUM_REPO
-  cd sanchezium/src
-  make -f makefile.unix 
-  compile_error Sanchezium
-  cp -a Sancheziumd /usr/local/bin
+  git clone $EXSOLUTION_REPO
+  cd exsolution/src
+  ./autogen.sh
+  ./configure
+  make
+  make install 
+  compile_error exsolution
+  cp -a exsolution-cli /usr/local/bin
   cd ~
   rm -rf $TMP_FOLDER
   clear
@@ -120,23 +123,23 @@ function compile_sanchezium() {
 function enable_firewall() {
   FWSTATUS=$(ufw status 2>/dev/null|awk '/^Status:/{print $NF}')
   if [ "$FWSTATUS" = "active" ]; then
-    echo -e "Setting up firewall to allow ingress on port ${GREEN}$SANCHEZIUMPORT${NC}"
-    ufw allow $SANCHEZIUMPORT/tcp comment "Sanchezium MN port" >/dev/null
+    echo -e "Setting up firewall to allow ingress on port ${GREEN}$EXSOLUTIONPORT${NC}"
+    ufw allow $EXSOLUTIONPORT/tcp comment "exsolution MN port" >/dev/null
   fi
 }
 
-function systemd_sanchezium() {
-  cat << EOF > /etc/systemd/system/$SANCHEZIUMUSER.service
+function systemd_exsolution() {
+  cat << EOF > /etc/systemd/system/$EXSOLUTIONUSER.service
 [Unit]
-Description=Sanchezium service
+Description=Exsolution service
 After=network.target
 
 [Service]
-ExecStart=$SANCHEZIUM_DAEMON -conf=$SANCHEZIUMFOLDER/$CONFIG_FILE -datadir=$SANCHEZIUMFOLDER
-ExecStop=$SANCHEZIUM_DAEMON -conf=$SANCHEZIUMFOLDER/$CONFIG_FILE -datadir=$SANCHEZIUMFOLDER stop
+ExecStart=$EXSOLUTION_DAEMON -conf=$EXSOLUTIONFOLDER/$CONFIG_FILE -datadir=$EXSOLUTIONFOLDER
+ExecStop=$EXSOLUTION_DAEMON -conf=$EXSOLUTIONFOLDER/$CONFIG_FILE -datadir=$EXSOLUTIONFOLDER stop
 Restart=on-abort
-User=$SANCHEZIUMUSER
-Group=$SANCHEZIUMUSER
+User=$EXSOLUTIONUSER
+Group=$EXSOLUTIONUSER
 
 [Install]
 WantedBy=multi-user.target
@@ -144,37 +147,37 @@ EOF
 
   systemctl daemon-reload
   sleep 3
-  systemctl start $SANCHEZIUMUSER.service
-  systemctl enable $SANCHEZIUMUSER.service
+  systemctl start $EXSOLUTIONUSER.service
+  systemctl enable $EXSOLUTIONUSER.service
 
-  if [[ -z "$(ps axo user:15,cmd:100 | egrep ^$SANCHEZIUMUSER | grep $SANCHEZIUM_DAEMON)" ]]; then
-    echo -e "${RED}Sancheziumd is not running${NC}, please investigate. You should start by running the following commands as root:"
-    echo -e "${GREEN}systemctl start $SANCHEZIUMUSER.service"
-    echo -e "systemctl status $SANCHEZIUMUSER.service"
+  if [[ -z "$(ps axo user:15,cmd:100 | egrep ^$EXSOLUTIONUSER | grep $EXSOLUTION_DAEMON)" ]]; then
+    echo -e "${RED}EXSOLUTIONd is not running${NC}, please investigate. You should start by running the following commands as root:"
+    echo -e "${GREEN}systemctl start $EXSOLUTIONUSER.service"
+    echo -e "systemctl status $EXSOLUTIONUSER.service"
     echo -e "less /var/log/syslog${NC}"
   fi
 }
 
 function ask_port() {
-read -p "SANCHEZIUM Port: " -i $DEFAULTSANCHEZIUMPORT -e SANCHEZIUMPORT
-: ${SANCHEZIUMPORT:=$DEFAULTSANCHEZIUMPORT}
+read -p "EXSOLUTION Port: " -i $DEFAULTEXSOLUTIONPORT -e EXSOLUTIONPORT
+: ${EXSOLUTIONPORT:=$DEFAULTEXSOLUTIONPORT}
 }
 
 function ask_user() {
-  read -p "Sanchezium user: " -i $DEFAULTSANCHEZIUMUSER -e SANCHEZIUMUSER
-  : ${SANCHEZIUMUSER:=$DEFAULTSANCHEZIUMUSER}
+  read -p "Exsolution user: " -i $DEFAULTEXSOLUTIONUSER -e EXSOLUTIONUSER
+  : ${EXSOLUTIONUSER:=$DEFAULTEXSOLUTIONUSER}
 
-  if [ -z "$(getent passwd $SANCHEZIUMUSER)" ]; then
+  if [ -z "$(getent passwd $EXSOLUTIONUSER)" ]; then
     USERPASS=$(pwgen -s 12 1)
-    useradd -m $SANCHEZIUMUSER
-    echo "$SANCHEZIUMUSER:$USERPASS" | chpasswd
+    useradd -m $EXSOLUTIONUSER
+    echo "$EXSOLUTIONUSER:$USERPASS" | chpasswd
 
-    SANCHEZIUMHOME=$(sudo -H -u $SANCHEZIUMUSER bash -c 'echo $HOME')
-    DEFAULTSANCHEZIUMFOLDER="$SANCHEZIUMHOME/.Sanchezium"
-    read -p "Configuration folder: " -i $DEFAULTSANCHEZIUMFOLDER -e SANCHEZIUMFOLDER
-    : ${SANCHEZIUMFOLDER:=$DEFAULTSANCHEZIUMFOLDER}
-    mkdir -p $SANCHEZIUMFOLDER
-    chown -R $SANCHEZIUMUSER: $SANCHEZIUMFOLDER >/dev/null
+    EXSOLUTIONHOME=$(sudo -H -u $EXSOLUTIONUSER bash -c 'echo $HOME')
+    DEFAULTEXSOLUTIONFOLDER="$EXSOLUTIONHOME/.Exsolution"
+    read -p "Configuration folder: " -i $DEFAULTEXSOLUTIONFOLDER -e EXSOLUTIONFOLDER
+    : ${EXSOLUTIONFOLDER:=$DEFAULTEXSOLUTIONFOLDER}
+    mkdir -p $EXSOLUTIONFOLDER
+    chown -R $EXSOLUTIONUSER: $EXSOLUTIONFOLDER >/dev/null
   else
     clear
     echo -e "${RED}User exits. Please enter another username: ${NC}"
@@ -187,7 +190,7 @@ function check_port() {
   PORTS=($(netstat -tnlp | awk '/LISTEN/ {print $4}' | awk -F":" '{print $NF}' | sort | uniq | tr '\r\n'  ' '))
   ask_port
 
-  while [[ ${PORTS[@]} =~ $SANCHEZIUMPORT ]] || [[ ${PORTS[@]} =~ $[SANCHEZIUMPORT+1] ]]; do
+  while [[ ${PORTS[@]} =~ $EXSOLUTIONPORT ]] || [[ ${PORTS[@]} =~ $[EXSOLUTIONPORT+1] ]]; do
     clear
     echo -e "${RED}Port in use, please choose another port:${NF}"
     ask_port
@@ -197,55 +200,55 @@ function check_port() {
 function create_config() {
   RPCUSER=$(pwgen -s 8 1)
   RPCPASSWORD=$(pwgen -s 15 1)
-  cat << EOF > $SANCHEZIUMFOLDER/$CONFIG_FILE
+  cat << EOF > $EXSOLUTIONFOLDER/$CONFIG_FILE
 rpcuser=$RPCUSER
 rpcpassword=$RPCPASSWORD
 rpcallowip=127.0.0.1
-rpcport=$[SANCHEZIUMPORT+1]
+rpcport=$[EXSOLUTIONPORT+1]
 listen=1
 server=1
 daemon=1
-port=$SANCHEZIUMPORT
+port=$EXSOLUTIONPORT
 EOF
 }
 
 function create_key() {
   echo -e "Enter your ${RED}Masternode Private Key${NC}. Leave it blank to generate a new ${RED}Masternode Private Key${NC} for you:"
-  read -e SANCHEZIUMKEY
-  if [[ -z "$SANCHEZIUMKEY" ]]; then
-  sudo -u $SANCHEZIUMUSER $SANCHEZIUM_DAEMON -conf=$SANCHEZIUMFOLDER/$CONFIG_FILE -datadir=$SANCHEZIUMFOLDER
+  read -e EXSOLUTIONKEY
+  if [[ -z "$EXSOLUTIONKEY" ]]; then
+  sudo -u $EXSOLUTIONUSER $EXSOLUTION_DAEMON -conf=$EXSOLUTIONFOLDER/$CONFIG_FILE -datadir=$EXSOLUTIONFOLDER
   sleep 5
-  if [ -z "$(ps axo user:15,cmd:100 | egrep ^$SANCHEZIUMUSER | grep $SANCHEZIUM_DAEMON)" ]; then
-   echo -e "${RED}Sancheziumd server couldn't start. Check /var/log/syslog for errors.{$NC}"
+  if [ -z "$(ps axo user:15,cmd:100 | egrep ^$EXSOLUTIONUSER | grep $EXSOLUTION_DAEMON)" ]; then
+   echo -e "${RED}exsolutiond server couldn't start. Check /var/log/syslog for errors.{$NC}"
    exit 1
   fi
-  SANCHEZIUMKEY=$(sudo -u $SANCHEZIUMUSER $SANCHEZIUM_DAEMON -conf=$SANCHEZIUMFOLDER/$CONFIG_FILE -datadir=$SANCHEZIUMFOLDER masternode genkey)
-  sudo -u $SANCHEZIUMUSER $SANCHEZIUM_DAEMON -conf=$SANCHEZIUMFOLDER/$CONFIG_FILE -datadir=$SANCHEZIUMFOLDER stop
+  EXSOLUTIONKEY=$(sudo -u $EXSOLUTIONUSER $EXSOLUTION_DAEMON -conf=$EXSOLUTIONFOLDER/$CONFIG_FILE -datadir=$EXSOLUTIONFOLDER masternode genkey)
+  sudo -u $EXSOLUTIONUSER $EXSOLUTION_DAEMON -conf=$EXSOLUTIONFOLDER/$CONFIG_FILE -datadir=$EXSOLUTIONFOLDER stop
 fi
 }
 
 function update_config() {
-  sed -i 's/daemon=1/daemon=0/' $SANCHEZIUMFOLDER/$CONFIG_FILE
-  cat << EOF >> $SANCHEZIUMFOLDER/$CONFIG_FILE
+  sed -i 's/daemon=1/daemon=0/' $EXSOLUTIONFOLDER/$CONFIG_FILE
+  cat << EOF >> $EXSOLUTIONFOLDER/$CONFIG_FILE
 maxconnections=256
 masternode=1
-masternodeaddr=$NODEIP:$SANCHEZIUMPORT
-masternodeprivkey=$SANCHEZIUMKEY
+masternodeaddr=$NODEIP:$EXSOLUTIONPORT
+masternodeprivkey=$EXSOLUTIONKEY
 EOF
-  chown -R $SANCHEZIUMUSER: $SANCHEZIUMFOLDER >/dev/null
+  chown -R $EXSOLUTIONUSER: $EXSOLUTIONFOLDER >/dev/null
 }
 
 function important_information() {
  echo
  echo -e "================================================================================================================================"
- echo -e "Sanchezium Masternode is up and running as user ${GREEN}$SANCHEZIUMUSER${NC} and it is listening on port ${GREEN}$SANCHEZIUMPORT${NC}."
- echo -e "${GREEN}$SANCHEZIUMUSER${NC} password is ${RED}$USERPASS${NC}"
- echo -e "Configuration file is: ${RED}$SANCHEZIUMFOLDER/$CONFIG_FILE${NC}"
- echo -e "Start: ${RED}systemctl start $SANCHEZIUMUSER.service${NC}"
- echo -e "Stop: ${RED}systemctl stop $SANCHEZIUMUSER.service${NC}"
- echo -e "VPS_IP:PORT ${RED}$NODEIP:$SANCHEZIUMPORT${NC}"
- echo -e "MASTERNODE PRIVATEKEY is: ${RED}$SANCHEZIUMKEY${NC}"
- echo -e "Please check Sanchezium is running with the following command: ${GREEN}systemctl status $SANCHEZIUMUSER.service${NC}"
+ echo -e "Exsolution Masternode is up and running as user ${GREEN}$EXSOLUTIONUSER${NC} and it is listening on port ${GREEN}$EXSOLUTIONPORT${NC}."
+ echo -e "${GREEN}$EXSOLUTIONUSER${NC} password is ${RED}$USERPASS${NC}"
+ echo -e "Configuration file is: ${RED}$EXSOLUTIONFOLDER/$CONFIG_FILE${NC}"
+ echo -e "Start: ${RED}systemctl start $EXSOLUTIONUSER.service${NC}"
+ echo -e "Stop: ${RED}systemctl stop $EXSOLUTIONUSER.service${NC}"
+ echo -e "VPS_IP:PORT ${RED}$NODEIP:$EXSOLUTIONPORT${NC}"
+ echo -e "MASTERNODE PRIVATEKEY is: ${RED}$EXSOLUTIONKEY${NC}"
+ echo -e "Please check Exsolution is running with the following command: ${GREEN}systemctl status $EXSOLUTIONUSER.service${NC}"
  echo -e "================================================================================================================================"
 }
 
@@ -257,7 +260,7 @@ function setup_node() {
   update_config
   enable_firewall
   important_information
-  systemd_sanchezium
+  systemd_exsolution
 }
 
 
@@ -265,15 +268,15 @@ function setup_node() {
 clear
 
 checks
-if [[ ("$NEW_SANCHEZIUM" == "y" || "$NEW_SANCHEZIUM" == "Y") ]]; then
+if [[ ("$NEW_EXSOLUTION" == "y" || "$NEW_EXSOLUTION" == "Y") ]]; then
   setup_node
   exit 0
-elif [[ "$NEW_SANCHEZIUM" == "new" ]]; then
+elif [[ "$NEW_EXSOLUTION" == "new" ]]; then
   prepare_system
-  compile_sanchezium
+  compile_exsolution
   setup_node
 else
-  echo -e "${GREEN}Sancheziumd already running.${NC}"
+  echo -e "${GREEN}Exsolutiond already running.${NC}"
   exit 0
 fi
 
